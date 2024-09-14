@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>中国法定退休年龄计算器</title>
     <link rel="icon"
-        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧓</text></svg>">
+          href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧓</text></svg>">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -77,134 +77,135 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1>🧓 中国法定退休年龄计算器</h1>
-        <div class="input-group">
-            <label for="birthYear">出生年份：</label>
-            <select id="birthYear"></select>
-        </div>
-        <div class="input-group">
-            <label for="birthMonth">出生月份：</label>
-            <select id="birthMonth"></select>
-        </div>
-        <div class="input-group">
-            <label for="category">类别：</label>
-            <select id="category">
-                <option value="male">男</option>
-                <option value="female50">女（原50周岁退休）</option>
-                <option value="female55">女（原55周岁退休）</option>
-            </select>
-        </div>
-        <button onclick="calculate()">查询</button>
-        <div id="result"></div>
+<div class="container">
+    <h1>🧓 中国法定退休年龄计算器</h1>
+    <div class="input-group">
+        <label for="birthYear">出生年份：</label>
+        <select id="birthYear"></select>
     </div>
+    <div class="input-group">
+        <label for="birthMonth">出生月份：</label>
+        <select id="birthMonth"></select>
+    </div>
+    <div class="input-group">
+        <label for="category">类别：</label>
+        <select id="category">
+            <option value="male">男</option>
+            <option value="female50">女（原50周岁退休）</option>
+            <option value="female55">女（原55周岁退休）</option>
+        </select>
+    </div>
+    <button onclick="calculate()">查询</button>
+    <div id="result"></div>
+</div>
 
-    <script>
-        initYearMonthSelect()
+<script>
+    initYearMonthSelect();
 
-        function initYearMonthSelect() {
-            const yearSelect = document.getElementById('birthYear');
-            const currentYear = new Date().getFullYear();
-            for (let year = 1950; year <= currentYear; year++) {
-                const option = document.createElement('option');
-                option.value = year;
-                option.textContent = year;
-                yearSelect.appendChild(option);
-            }
-            yearSelect.value = 1970
+    function initYearMonthSelect() {
+        const yearSelect = document.getElementById('birthYear');
+        const currentYear = new Date().getFullYear();
+        for (let year = 1950; year <= currentYear; year++) {
+            const option = document.createElement('option');
+            option.value = year + '';
+            option.textContent = year + '';
+            yearSelect.appendChild(option);
+        }
+        yearSelect.value = '1970';
 
-            const monthSelect = document.getElementById('birthMonth')
-            for (let month = 1; month <= 12; month++) {
-                const option = document.createElement('option');
-                option.value = month;
-                option.textContent = month;
-                monthSelect.appendChild(option);
-            }
+        const monthSelect = document.getElementById('birthMonth');
+        for (let month = 1; month <= 12; month++) {
+            const option = document.createElement('option');
+            option.value = month + '';
+            option.textContent = month + '';
+            monthSelect.appendChild(option);
+        }
+    }
+
+    function calculate() {
+        const birthYear = parseInt(document.getElementById('birthYear').value);
+        const birthMonth = parseInt(document.getElementById('birthMonth').value);
+        const category = document.getElementById('category').value;
+        const resultDiv = document.getElementById('result');
+
+        if (isNaN(birthYear) || isNaN(birthMonth)) {
+            resultDiv.innerHTML = "请选择有效的出生年月";
+            return;
         }
 
-        function calculate() {
-            const birthYear = parseInt(document.getElementById('birthYear').value);
-            const birthMonth = parseInt(document.getElementById('birthMonth').value);
-            const category = document.getElementById('category').value;
-            const resultDiv = document.getElementById('result');
+        let result;
+        if (category === 'male') {
+            result = calculateRetirement(birthYear, birthMonth, maleConfig)
+        } else if (category === 'female50') {
+            result = calculateRetirement(birthYear, birthMonth, female50Config)
+        } else if (category === 'female55') {
+            result = calculateRetirement(birthYear, birthMonth, female55Config)
+        }
 
-            if (isNaN(birthYear) || isNaN(birthMonth)) {
-                resultDiv.innerHTML = "请选择有效的出生年月";
-                return;
-            }
+        let retireAgeStr = `${result.retireAgeYears}岁${result.retireAgeMonths ? result.retireAgeMonths + "个月" : ""}`;
+        let retireTimeStr = `${result.retireYear}年${result.retireMonth}月`;
 
-            if (category === 'male') {
-                result = calculateRetirement(birthYear, birthMonth, maleConfig)
-            } else if (category === 'female50') {
-                result = calculateRetirement(birthYear, birthMonth, female50Config)
-            } else if (category === 'female55') {
-                result = calculateRetirement(birthYear, birthMonth, female55Config)
-            }
-
-            let retireAgeStr = `${result.retireAgeYears}岁${result.retireAgeMonths ? result.retireAgeMonths + "个月" : ""}`;
-            let retireTimeStr = `${result.retireYear}年${result.retireMonth}月`;
-
-            resultDiv.innerHTML = `
+        resultDiv.innerHTML = `
                 改革后法定退休年龄：${retireAgeStr}<br>
                 改革后退休时间：${retireTimeStr}<br>
                 延迟月数：${result.delayMonths}个月
             `;
+    }
+
+    // 男性
+    const maleConfig = {
+        startYear: 1965,
+        incrementMonths: 4,
+        maxDelayMonths: 36,
+        formerRetireAge: 60
+    };
+
+    // 女性（原50岁退休）
+    const female50Config = {
+        startYear: 1975,
+        incrementMonths: 2,
+        maxDelayMonths: 60,
+        formerRetireAge: 50
+    };
+
+    // 女性（原55岁退休）
+    const female55Config = {
+        startYear: 1970,
+        incrementMonths: 4,
+        maxDelayMonths: 36,
+        formerRetireAge: 55
+    };
+
+    function calculateRetirement(year, month, config) {
+        const {startYear, incrementMonths, maxDelayMonths, formerRetireAge} = config;
+
+        // 计算出生月份离起始年的总月份数
+        const totalMonths = Math.max(0, (year - startYear) * 12 + (month - 1));
+
+        // 延迟退休的月份数
+        let delayMonths = year < startYear ? 0 : Math.min(Math.floor(totalMonths / incrementMonths) + 1, maxDelayMonths);
+
+        // 总工作月份数
+        let workMonths = formerRetireAge * 12 + delayMonths;
+
+        // 退休时间（退休年月）
+        const retireDate = new Date(year, month - 1 + workMonths);
+        const retireYear = retireDate.getFullYear();
+        const retireMonth = retireDate.getMonth() + 1;
+
+        // 退休年龄 = 前退休年龄 + 延迟年（延迟月数 / 12）
+        const retireAgeYears = formerRetireAge + Math.floor(delayMonths / 12);
+        const retireAgeMonths = delayMonths % 12;
+
+        return {
+            retireYear,      // 退休年份
+            retireMonth,     // 退休月份
+            retireAgeYears,  // 退休时年龄（年）
+            retireAgeMonths, // 退休时年龄（月）
+            delayMonths      // 延迟退休的月份数
         }
-
-        // 男性
-        const maleConfig = {
-            startYear: 1965,
-            incrementMonths: 4,
-            maxDelayMonths: 36,
-            formerRetireAge: 60
-        };
-
-        // 女性（原50岁退休）
-        const female50Config = {
-            startYear: 1975,
-            incrementMonths: 2,
-            maxDelayMonths: 60,
-            formerRetireAge: 50
-        };
-
-        // 女性（原55岁退休）
-        const female55Config = {
-            startYear: 1970,
-            incrementMonths: 4,
-            maxDelayMonths: 36,
-            formerRetireAge: 55
-        };
-
-        function calculateRetirement(year, month, config) {
-            const { startYear, incrementMonths, maxDelayMonths, formerRetireAge } = config;
-
-            // 计算出生月份离起始年的总月份数
-            const totalMonths = Math.max(0, (year - startYear) * 12 + (month - 1));
-
-            // 延迟退休的月份数
-            let delayMonths = year < startYear ? 0 : Math.min(Math.floor(totalMonths / incrementMonths) + 1, maxDelayMonths);
-
-            // 总工作月份数
-            let workMonths = formerRetireAge * 12 + delayMonths
-
-            // 退休时间（退休年月）
-            const retireDate = new Date(year, month - 1 + workMonths);
-            const retireYear = retireDate.getFullYear()
-            const retireMonth = retireDate.getMonth() + 1
-
-            // 退休年龄 = 前退休年龄 + 延迟年（延迟月数 / 12）
-            const retireAgeYears = formerRetireAge + Math.floor(delayMonths / 12);
-            const retireAgeMonths = delayMonths % 12;
-
-            return {
-                retireYear,      // 退休年份
-                retireMonth,     // 退休月份
-                retireAgeYears,  // 退休时年龄（年）
-                retireAgeMonths, // 退休时年龄（月）
-                delayMonths      // 延迟退休的月份数
-            }
-        }
-    </script>
+    }
+</script>
 </body>
 
 </html>
