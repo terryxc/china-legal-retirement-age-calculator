@@ -141,7 +141,6 @@
                 result = calculateRetirement(birthYear, birthMonth, female55Config)
             }
 
-
             let retireAgeStr = `${result.retireAgeYears}岁${result.retireAgeMonths ? result.retireAgeMonths + "个月" : ""}`;
             let retireTimeStr = `${result.retireYear}年${result.retireMonth}月`;
 
@@ -180,18 +179,22 @@
             const { startYear, incrementMonths, maxDelayMonths, formerRetireAge } = config;
 
             // 计算出生月份离起始年的总月份数
-            const totalMonths = (year - startYear) * 12 + (month - 1);
+            const totalMonths = Math.max(0, (year - startYear) * 12 + (month - 1));
 
             // 延迟退休的月份数
             let delayMonths = year < startYear ? 0 : Math.min(Math.floor(totalMonths / incrementMonths) + 1, maxDelayMonths);
 
+            // 总工作月份数
+            let workMonths = formerRetireAge * 12 + delayMonths
+
+            // 退休时间（退休年月）
+            const retireDate = new Date(year, month - 1 + workMonths);
+            const retireYear = retireDate.getFullYear()
+            const retireMonth = retireDate.getMonth() + 1
+
             // 退休年龄 = 前退休年龄 + 延迟年（延迟月数 / 12）
             const retireAgeYears = formerRetireAge + Math.floor(delayMonths / 12);
             const retireAgeMonths = delayMonths % 12;
-
-            // 退休时间（退休年月）
-            const retireYear = year + retireAgeYears + Math.floor((month + retireAgeMonths - 1) / 12);
-            const retireMonth = (month + retireAgeMonths - 1) % 12 + 1;
 
             return {
                 retireYear,      // 退休年份
